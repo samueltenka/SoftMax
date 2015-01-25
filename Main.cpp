@@ -9,7 +9,8 @@ const float timestep = 0.00001;
 const int REPS = 200;
 
 const int K = 10;
-const int N = 784;//50000;
+const int thresh = 5000;
+const int N = 50000;
 const int DIM = 28*28;
 VectorList xs(N, DIM);
 int ts[N];
@@ -26,10 +27,7 @@ void step(int k, float dt) {
    Vector grad(DIM);
    grad.zero_out();
    grad.add(*weights.vecs[k], reg_param);
-   for(int n=0; n<N; n++) { grad.add(*xs.vecs[n], coeff(k, n)); }
-   /*for(int d=150; d<160; d++) {
-      printf("%d ", (int)(100*grad.sub[d]));
-   } printf("\n");*/
+   for(int n=thresh; n<N; n++) { grad.add(*xs.vecs[n], coeff(k, n)); }
    weights.vecs[k]->add(grad, -dt);
 }
 
@@ -45,48 +43,26 @@ int classify(Vector& x) { // t of maximum probability P(t|x,w's) given predeterm
    return (classify(x)==correct_t ? 0 : 1);
 } float error_on(VectorList &test_xs, int* const &correct_ts) {
    float sum = 0.0;
-   for(int n=0; n<test_xs.num; n++) { sum += error_of(*(test_xs.vecs[n]), correct_ts[n]); }
-   return sum/test_xs.num;
+   for(int n=0; n<thresh; n++) { sum += error_of(*(test_xs.vecs[n]), correct_ts[n]); }
+   return sum/thresh;
 }
 
 void main() {
-   //Vector w(5);
-   //Vector v(5);
-   //w.sub[0]=0.1;
-   //w.sub[1]=0.1;
-   //w.sub[2]=0.1;
-   //w.sub[3]=0.1;
-   //w.sub[4]=0.1;
-
-   //v.sub[0]=0.1;
-   //v.sub[1]=0.1;
-   //v.sub[2]=0.1;
-   //v.sub[3]=0.1;
-   //v.sub[4]=0.1;
-
-   //w.add(v, 9);
-   //for(int d=0; d<5;d++) {
-   //   printf("%f ", w.sub[d]);
-   //} printf("\n");
-
-   //printf("%f", v.dot(w));
-
-   srand(time(NULL));
-
    /************************
     READ TRAINING DATA
     ************************/
-   read_xts_from("train_usps_shorter.csv", N, DIM, xs, ts);
+   read_xts_from("train_usps.csv", N, DIM, xs, ts);
    printf("READING DONE!\n");
 
    /************************
     UPDATE WEIGHTS
     ************************/
+   srand(time(NULL));
    weights.zero_out();
    for(int i=0; i<REPS; i++) {
       step(rand()%K, timestep);
       if(i%5==0) {printf("%d %f\n", i, error_on(xs, ts));}
-   }
+   } int i=200; {printf("%d %f\n", i, error_on(xs, ts));}
    printf("UPDATING DONE!\n");
 
    /************************
