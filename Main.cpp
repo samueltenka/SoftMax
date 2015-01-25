@@ -5,7 +5,7 @@
 
 
 const float reg_param = 0.000001;
-const float timestep = 0.00001;
+float timestep = 0.00001;
 const int REPS = 200;
 
 const int K = 10;
@@ -62,10 +62,18 @@ void main() {
     ************************/
    srand(time(NULL));
    weights.zero_out();
+   float t = 0.0;
+   float previous_error = 1.0;
    for(int i=0; i<REPS; i++) {
-      step(rand()%K, timestep);
-      if(i%5==0) {printf("%d %f\n", i, error_on(xs, ts));}
-   } int i=200; {printf("%d %f\n", i, error_on(xs, ts));}
+      float error = error_on(xs, ts);
+      if(i%5==0) {printf("%f %f\n", t, error);}
+
+      if(error>previous_error) {timestep *= 0.9;}
+      else {timestep *= 1.1;}
+
+      step(rand()%K, timestep); t += timestep;
+      previous_error = error;
+   } int i=200; {printf("%f %f\n", t, error_on(xs, ts));}
    write_ws_to("weights.csv", DIM, weights);
    printf("UPDATING DONE!\n");
 
