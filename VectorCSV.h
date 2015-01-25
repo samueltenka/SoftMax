@@ -14,6 +14,22 @@ struct Vector {
    } ~Vector() {
       delete[] sub;
    }
+   void zero_out() {
+      for(int d=0; d<dim; d++) { sub[d] = 0; }
+   }
+   void operator+=(const Vector &rhs) {
+      if(dim!=rhs.dim) {return;}
+      for(int d=0; d<dim; d++) {sub[d] += rhs.sub[d];}
+   } Vector& times(float scale) {
+      Vector scaled(dim);
+      for(int d=0; d<dim; d++) {scaled.sub[d] = sub[d]*scale;}
+      return scaled;
+   } float dot(const Vector &rhs) {
+      if(dim!=rhs.dim) {return;}
+      float sum = 0.0;
+      for(int d=0; d<dim; d++) {sum += sub[d]*rhs.sub[d];}
+      return sum;
+   }
 };
 struct VectorList {
    int num;
@@ -26,9 +42,14 @@ struct VectorList {
       delete[] vecs;
    }
    float* get(int n, int d) { return &(vecs[n]->sub[d]); }
+   void zero_out() {
+      for(int n=0; n<num; n++) {
+         vecs[n]->zero_out();
+      }
+   }
 };
 
-void init_from(const char* filename, int N, int DIM, VectorList &xs, int* const &ts) {
+void read_xts_from(const char* filename, int N, int DIM, VectorList &xs, int* const &ts) {
    FILE* train_file;
    fopen_s(&train_file, filename, "r");
    char line[10000];
