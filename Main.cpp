@@ -19,6 +19,12 @@ VectorList weights(10, DIM);
 VectorList test_xs(test_N, DIM);
 int test_ts[test_N];
 
+
+//const double tau = 244.0 * exp(log(734.0/N)/734.0); // r^d/R^d=n/N => r=R*(n/N)^(1/d)
+//const double tau_norm = 1.0/(sqrt(2*3.1415965358)*tau);
+//double localizer(Vector &x1, Vector &x2) {
+//   return tau_norm * exp(-x1.dot(x2)/(2*tau*tau));
+//}
 double prob(int t, Vector &x) {
    double normalizer = 0.0;
    for(int k=0; k<K; k++) { normalizer += exp(x.dot(*weights.vecs[k])); }
@@ -65,7 +71,8 @@ void main() {
     UPDATE WEIGHTS
     ************************/
    srand(time(NULL));
-   weights.zero_out();
+   //weights.zero_out();
+   read_xs_from("weights.csv", DIM, weights);
 
    VectorList best_weights(N, DIM);
    double best_error = 1.0;
@@ -73,22 +80,22 @@ void main() {
    double t = 0.0;
    for(int i=0; i<REPS; i++) {
       double error = error_on(xs, ts);
-      printf("%d %f, %f %f %f\n", i, timestep, t, error, best_error);
+      printf("%d %f, %f %f %f\n", i, timestep, t, 1-error, 1-best_error);
 
-      if(error < best_error*1.005) {
-         timestep *= 1.1;
+      if(error < best_error) {
+         printf(">"); timestep *= 1.1;
          best_weights.copy_from(weights);
-         best_error = error;
+         best_error = error*1.005;
       } else {
-         if(timestep > 0.00001) {timestep *= 0.9;}
-         if(rand()%4==0) { weights.copy_from(best_weights); }
+         if(timestep > 0.00001) {printf("<"); timestep *= 0.9;}
+         if(rand()%4==0) {printf("!"); weights.copy_from(best_weights); }
+         else {printf("~");}
       }
       //if(timestep < 0.00001 / 100) { break; } // terminate at convergence
 
       step(rand()%K, timestep); t += timestep;
 
-   } int i=200; {printf("%f %f\n", t, error_on(xs, ts));}
-   write_ws_to("weights.csv", DIM, weights);
+   } int i=200; printf("%d %f, %f %f %f\n", i, timestep, t, 1-error_on(xs, ts), 1-best_error);
    printf("UPDATING DONE! terminated at time %f\n", t);
 
    /************************
@@ -98,7 +105,7 @@ void main() {
    for(int n=0; n<test_N; n++) {
       test_ts[n] = classify(*test_xs.vecs[n]);
    }
-   write_ts_to("Kaggle_Out_2.csv", test_N, test_ts);
+   write_ts_to("Kaggle_Out_4.csv", test_N, test_ts);
 
 
 
