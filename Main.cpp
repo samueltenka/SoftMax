@@ -4,8 +4,8 @@
 #include "VectorCSV.h"
 
 
-const float reg_param = 0.01;
-const float timestep = 0.01;
+const float reg_param = 0.9001;
+const float timestep = 0.00001;
 const int REPS = 200;
 
 const int K = 10;
@@ -25,22 +25,22 @@ float prob(int t, Vector &x) {
 void step(int k, float dt) {
    Vector grad(DIM);
    grad.zero_out();
-   grad += weights.vecs[k]->times(reg_param);
-   for(int n=0; n<N; n++) { grad += xs.vecs[n]->times(coeff(k, n)); }
-   *weights.vecs[k] += grad.times(-dt);
+   grad.add(*weights.vecs[k], reg_param);
+   for(int n=0; n<N; n++) { grad.add(*xs.vecs[n], coeff(k, n)); }
+   /*for(int d=150; d<160; d++) {
+      printf("%d ", (int)(100*grad.sub[d]));
+   } printf("\n");*/
+   weights.vecs[k]->add(grad, -dt);
 }
 
 int classify(Vector& x) { // t of maximum probability P(t|x,w's) given predetermined w's.
-   int best_k=0;
-   float best_prob = prob(0, x);
+   int best_k=0; float best_prob=prob(0, x);
    for(int k=1; k<K; k++) {
       float new_prob = prob(k, x);
       if(new_prob > best_prob) {
-         best_k = k;
-         best_prob = new_prob;
+         best_k=k; best_prob=new_prob;
       }
-   }
-   return best_k;
+   } return best_k;
 } int error_of(Vector& x, int correct_t) {
    return (classify(x)==correct_t ? 0 : 1);
 } float error_on(VectorList &test_xs, int* const &correct_ts) {
@@ -50,6 +50,27 @@ int classify(Vector& x) { // t of maximum probability P(t|x,w's) given predeterm
 }
 
 void main() {
+   //Vector w(5);
+   //Vector v(5);
+   //w.sub[0]=0.1;
+   //w.sub[1]=0.1;
+   //w.sub[2]=0.1;
+   //w.sub[3]=0.1;
+   //w.sub[4]=0.1;
+
+   //v.sub[0]=0.1;
+   //v.sub[1]=0.1;
+   //v.sub[2]=0.1;
+   //v.sub[3]=0.1;
+   //v.sub[4]=0.1;
+
+   //w.add(v, 9);
+   //for(int d=0; d<5;d++) {
+   //   printf("%f ", w.sub[d]);
+   //} printf("\n");
+
+   //printf("%f", v.dot(w));
+
    srand(time(NULL));
 
    /************************
@@ -64,7 +85,7 @@ void main() {
    weights.zero_out();
    for(int i=0; i<REPS; i++) {
       step(rand()%K, timestep);
-      if(i%10==0) {printf("%d %f\n", i, error_on(xs, ts));}
+      if(i%5==0) {printf("%d %f\n", i, error_on(xs, ts));}
    }
    printf("UPDATING DONE!\n");
 
