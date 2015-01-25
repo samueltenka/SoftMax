@@ -39,20 +39,15 @@ void main() {
    char line[10000];
    fgets(line, 10000, train_file); // read heading
    for(int n=0; n<N; n++) { // read body
-      //fgets(line, 10000, train_file);
       int DEE;
       fscanf_s(train_file, "%10f,", &DEE); // (id)
-      ////printf("!%d\n", DEE);
       for(int d=0; d<DIM; d++) {
          fscanf_s(train_file, "%f,", xs.get(n, d));
-         ////printf("!!%10f\n", *xs.get(n,d));
       } // (x's)
-      char X;
-      fscanf_s(train_file, "%c", &X);//ts[n]); // (t)
-      ////printf("!!!%c\n", X);
+      fscanf_s(train_file, "%1d", &ts[n]);
       if(n%1000==0) {printf("!%d\n", n);}
    }
-   printf("%f %f\n", *xs.get(0, 0), *xs.get(N-1, 157));
+   printf("%d %f %f\n", ts[0], *xs.get(0, 0), *xs.get(N-1, 157));
    fclose(train_file);
 
    printf("I have survived!\n");
