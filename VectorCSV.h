@@ -2,7 +2,7 @@
 //
 
 #ifndef STDIO_H
-#include <stdio.h>
+#include <stdio.h>  /* all file io stuff */
 #define STDIO_H
 #endif
 
@@ -25,7 +25,7 @@ struct Vector {
       for(int d=0; d<dim; d++) {scaled.sub[d] = sub[d]*scale;}
       return scaled;
    } float dot(const Vector &rhs) {
-      if(dim!=rhs.dim) {return;}
+      if(dim!=rhs.dim) {exit(-1);} // ERROR!
       float sum = 0.0;
       for(int d=0; d<dim; d++) {sum += sub[d]*rhs.sub[d];}
       return sum;
