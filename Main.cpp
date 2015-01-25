@@ -4,17 +4,20 @@
 #include "VectorCSV.h"
 
 
-const float reg_param = 0.9001;
+const float reg_param = 0.000001;
 const float timestep = 0.00001;
 const int REPS = 200;
 
 const int K = 10;
-const int thresh = 5000;
-const int N = 50000;
+const int test_N = 20000;
+const int N = 7840;
+const int thresh = N/10; // threshold under which data is for error-calc. testing; above which, for training.
 const int DIM = 28*28;
 VectorList xs(N, DIM);
 int ts[N];
 VectorList weights(10, DIM);
+VectorList test_xs(test_N, DIM);
+int test_ts[test_N];
 
 float prob(int t, Vector &x) {
    float normalizer = 0.0;
@@ -51,7 +54,7 @@ void main() {
    /************************
     READ TRAINING DATA
     ************************/
-   read_xts_from("train_usps.csv", N, DIM, xs, ts);
+   read_xts_from("train_usps_short.csv", DIM, xs, ts);
    printf("READING DONE!\n");
 
    /************************
@@ -63,7 +66,19 @@ void main() {
       step(rand()%K, timestep);
       if(i%5==0) {printf("%d %f\n", i, error_on(xs, ts));}
    } int i=200; {printf("%d %f\n", i, error_on(xs, ts));}
+   write_ws_to("weights.csv", DIM, weights);
    printf("UPDATING DONE!\n");
+
+   /************************
+    PREDICT TEST LABELS
+    ************************/
+   read_xs_from("test_usps.csv", DIM, test_xs);
+   for(int n=0; n<test_N; n++) {
+      test_ts[n] = classify(*test_xs.vecs[n]);
+   }
+   write_ts_to("hohoho.csv", test_N, test_ts);
+
+
 
    /************************
     EXIT GRACEFULLY
