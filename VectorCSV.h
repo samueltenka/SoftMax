@@ -17,13 +17,9 @@ struct Vector {
    void zero_out() {
       for(int d=0; d<dim; d++) { sub[d] = 0; }
    }
-   void operator+=(const Vector &rhs) {
+   void add(const Vector &rhs, float scale) {
       if(dim!=rhs.dim) {return;}
-      for(int d=0; d<dim; d++) {sub[d] += rhs.sub[d];}
-   } Vector& times(float scale) {
-      Vector scaled(dim);
-      for(int d=0; d<dim; d++) {scaled.sub[d] = sub[d]*scale;}
-      return scaled;
+      for(int d=0; d<dim; d++) {sub[d] += rhs.sub[d]*scale;}
    } float dot(const Vector &rhs) {
       if(dim!=rhs.dim) {exit(-1);} // ERROR!
       float sum = 0.0;
