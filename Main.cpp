@@ -1,6 +1,12 @@
-#include <math.h>
+#include <math.h>    /* exp */
+#include <stdlib.h>  /* srand, rand*/
+#include <time.h>    /* time */
 #include "VectorCSV.h"
 
+
+const float lambda = 0.00001;
+const float timestep = 0.0001;
+const int REPS = 200;
 
 const int K = 10;
 const int N = 784;//50000;
@@ -23,14 +29,27 @@ void step(int k, float dt) {
 }
 
 void main() {
+   srand(time(NULL));
+
    /************************
     READ TRAINING DATA
     ************************/
    read_xts_from("train_usps_shorter.csv", N, DIM, xs, ts);
+   printf("READING DONE!\n");
+
+   /************************
+    UPDATE WEIGHTS
+    ************************/
    weights.zero_out();
+   for(int i=0; i<REPS; i++) {
+      step(rand()%K, timestep);
+      if(i%10==0) {printf("%d\n", i);}
+   }
+   printf("UPDATING DONE!\n");
 
-
-
+   /************************
+    EXIT GRACEFULLY
+    ************************/
    printf("I have survived!\n");
    char c; scanf_s("%c", &c);
 }
