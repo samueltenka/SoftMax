@@ -29,9 +29,9 @@ VectorList history(REPS, 2);
 
 #include "SoftMax.h"
 
-void main() {
+int main() {
    // READ TRAINING DATA
-   read_xts_from("train_usps_short.csv", DIM, xs, ts);
+   read_xts_from("train_usps.csv", DIM, xs, ts);
    printf("READING DONE!\n");
 
    // UPDATE WEIGHTS
@@ -48,8 +48,8 @@ void main() {
    printf("UPDATING DONE!");
 
    write_ws_to("history.csv", 2, history);
+   write_ws_to("weights.csv", K, weights);
 
    // EXIT GRACEFULLY
-   printf("I have survived!\n");
-   char c; scanf_s("%c", &c);
+   return 0;
 }
