@@ -1,69 +1,55 @@
 // Creation 2015 by Samuel Tenka
 //
 
-#ifndef STDIO_H
-#include <stdio.h>  /* all file io stuff */
-#define STDIO_H
-#endif
+#include <math.h>    /* exp */
+#include <stdlib.h>  /* srand, rand*/
+#include <time.h>    /* time */
 
 #ifndef VECTOR_H
 #include "SamVector.h"
 #define VECTOR_H
 #endif
+#ifndef CSV_H
+#include "CSV.h"
+#define CSV_H
+#endif
 
-void read_xts_from(const char* filename, int DIM, VectorList &xs, int* const &ts) {
-   FILE* train_file;
-   fopen_s(&train_file, filename, "r");
-   char line[10000];
-   fgets(line, 10000, train_file); // read heading
-   for(int n=0; n<xs.num; n++) { // read body
-      fscanf_s(train_file, "%*10f,"); // (id)
-      for(int d=0; d<DIM; d++) {fscanf_s(train_file, "%f,", xs.get(n, d));} // (x's)
-      fscanf_s(train_file, "%1d", &ts[n]);  // (t's)
+const double reg_param = 0.000001;
+const double dt = 0.00001;
+const int REPS = 200;
 
-      if(n%1000==0) {printf("reading xt's: n=%d\n", n);}
+const int K = 10;
+const int N = 50000;
+const int DIM = 28*28;
+
+VectorList xs(N, DIM);
+int ts[N];
+VectorList weights(K, DIM);
+VectorList history(REPS, 2);
+
+#include "SoftMax.h"
+
+int main() {
+   // READ TRAINING DATA
+   read_xts_from("train_usps.csv", DIM, xs, ts);
+   printf("READING DONE!\n");
+
+   // UPDATE WEIGHTS
+   srand(time(NULL));
+   weights.zero_out();
+
+   double t=0.0;
+   for(int i=0; i<REPS; i++) {
+      *history.get(i, 0) = t;
+      *history.get(i, 1) = error_on(xs, ts, weights);
+      printf("%d, %f, %f, %f\n", i, dt, t, *history.get(i, 1));
+      step(rand()%K, dt, reg_param, ts, xs, weights); t += dt;
    }
-   fclose(train_file);
-} void read_xs_from(const char* filename, int DIM, VectorList &xs) {
-   FILE* train_file;
-   fopen_s(&train_file, filename, "r");
-   char line[10000];
-   fgets(line, 10000, train_file); // read heading
-   for(int n=0; n<xs.num; n++) { // read body
-      fscanf_s(train_file, "%*10f,"); // (id)
-      for(int d=0; d<DIM-1; d++) {fscanf_s(train_file, "%f,", xs.get(n, d));} // (x's)
-      int d=DIM-1; fscanf_s(train_file, "%f", xs.get(n, d)); // (last x of row)
+   printf("UPDATING DONE!");
 
-      if(n%1000==0) {printf("reading x's: n=%d\n", n);}
-   }
-   fclose(train_file);
-}
+   write_ws_to("history.csv", 2, history);
+   write_ws_to("weights.csv", K, weights);
 
-void write_ts_to(const char* filename, int N, int* const &ts) {
-   FILE* predict_file;
-   fopen_s(&predict_file, filename, "w");
-
-   fprintf(predict_file, "id,label\n"); // write heading
-   for(int n=0; n<N; n++) { // write t's
-      fprintf(predict_file, "%d,%d\n", n, ts[n]);
-   }
-   fclose(predict_file);
-}
-
-void write_ws_to(const char* filename, int DIM, VectorList &ws) {
-   FILE* weight_file;
-   fopen_s(&weight_file, filename, "w");
-
-   fprintf(weight_file, "id,"); // write heading
-   for(int d=0; d<DIM-1; d++) {
-      fprintf(weight_file, "%d,", d);
-   } fprintf(weight_file, "%d\n", DIM-1);
-
-   for(int n=0; n<ws.num; n++) { // write body
-      fprintf(weight_file, "%d,", n);
-      for(int d=0; d<DIM-1; d++) {
-         fprintf(weight_file, "%f,", *ws.get(n,d));
-      } fprintf(weight_file, "%f\n", *ws.get(n,DIM-1));
-   }
-   fclose(weight_file);
+   // EXIT GRACEFULLY
+   return 0;
 }
