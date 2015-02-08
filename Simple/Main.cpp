@@ -1,12 +1,12 @@
 // Creation 2015 by Samuel Tenka
 //
 
-#include <math.h>    /* exp */
 #include <stdlib.h>  /* srand, rand*/
 #include <time.h>    /* time */
 
 #include "CSV.h"
 #include "SamVectorize.h"
+#include "Fourier.h"
 
 const double reg_param = 0.000001;
 const double dt = 0.000001;
@@ -22,13 +22,17 @@ float** ws;//[K][DIM]
 
 
 int main() {
-   construct(xs, LEN, DIM);
+   //construct(xs, LEN, DIM);
    construct(ws, K, DIM);
 
-   read_xs_from("weights_1.csv", ws, K, DIM);
-   write_xs_to("weights_copy.csv", ws, K, DIM);
+   for(int k=0; k<K; ++k) {
+      initialize_fourier(k, k, ws[k]);
+   }
 
-   destroy(xs, LEN);
+   //read_xs_from("weights_1.csv", ws, K, DIM);
+   write_xs_to("fouriers.csv", ws, K, DIM);
+
+   //destroy(xs, LEN);
    destroy(ws, K);
    return 0;
 }
