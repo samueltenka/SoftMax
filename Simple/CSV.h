@@ -7,7 +7,7 @@
 #endif
 
 
-void read_xts_from(const char* filename, float** &xs, int* &ts, const int len, const int dim) {
+void read_xts_from(const char* filename, float** &xs, int ts[], const int len, const int dim) {
    FILE* train_file;
    fopen_s(&train_file, filename, "r");
    char line[10000];
@@ -15,7 +15,7 @@ void read_xts_from(const char* filename, float** &xs, int* &ts, const int len, c
    for(int n=0; n<len; ++n) { // read body
       fscanf_s(train_file, "%*10f,"); // (id)
       for(int i=0; i<dim; ++i) {fscanf_s(train_file, "%f,", &xs[n][i]);} // (x's)
-      fscanf_s(train_file, "%1d", &ts[n]);  // (t's)
+      fscanf_s(train_file, "%d\n", &ts[n]);  // (t's)
 
       if(n%1000==0) {printf("reading xt's: n=%d\n", n);}
    }
