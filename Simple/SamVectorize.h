@@ -24,7 +24,7 @@ void add(float a[], const float b[], const double scalar, const int dim) {
 void times(float a[], const float b[], const double scalar, const int dim) {
    for(int i=0; i<dim; ++i) {a[i]=b[i]*scalar;}
 }
-double dot(const float* &a, const float* &b, const int dim) {
+double dot(const float a[], const float b[], const int dim) {
    double sum = 0.0;
    for(int i=0; i<dim; ++i) {sum += a[i]*b[i];}
    return sum;
