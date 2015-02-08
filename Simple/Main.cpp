@@ -13,43 +13,54 @@
 #include "CSV.h"
 #define CSV_H
 #endif
+#include "SoftMax.h"
 
 const double reg_param = 0.000001;
-const double dt = 0.00001;
+const double dt = 0.000001;
 const int REPS = 200;
 
 const int K = 10;
-const int N = 50000;
+const int N = 7840; //50000;
 const int DIM = 28*28;
 
 VectorList xs(N, DIM);
 int ts[N];
 VectorList weights(K, DIM);
 VectorList history(REPS, 2);
+void record_history(int i, double t, double error) {
+   *history.get(i, 0) = t;
+   *history.get(i, 1) = error;
+} double get_error() {
+   return error_on(xs, ts, weights);
+}
 
-#include "SoftMax.h"
-
-int main() {
+void main() {
    // READ TRAINING DATA
-   read_xts_from("train_usps.csv", DIM, xs, ts);
+   weights.zero_out();
+   read_xs_from("weights_1.csv", DIM, weights);
+
+   read_xts_from("train_usps_short.csv", DIM, xs, ts);
    printf("READING DONE!\n");
 
    // UPDATE WEIGHTS
    srand(time(NULL));
-   weights.zero_out();
-
+   
    double t=0.0;
    for(int i=0; i<REPS; i++) {
-      *history.get(i, 0) = t;
-      *history.get(i, 1) = error_on(xs, ts, weights);
-      printf("%d, %f, %f, %f\n", i, dt, t, *history.get(i, 1));
-      step(rand()%K, dt, reg_param, ts, xs, weights); t += dt;
+      step(rand()%K, dt, reg_param, ts, xs, weights);
+      double error = get_error();
+      t += dt;
+
+      record_history(i, t, error);
+      //if(i%20==1) {write_ws_to("history.csv", 2, history);}
+      printf("%d, %f, %f, %f\n", i, t, dt, error);
    }
    printf("UPDATING DONE!");
 
+   write_ws_to("weights.csv", DIM, weights);
    write_ws_to("history.csv", 2, history);
-   write_ws_to("weights.csv", K, weights);
 
    // EXIT GRACEFULLY
-   return 0;
+   printf("I have survived!\n");
+   char c; scanf_s("%c", &c);
 }
