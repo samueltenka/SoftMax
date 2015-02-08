@@ -5,7 +5,7 @@ struct Vector {
    int dim;
    float* sub;
    Vector(int dim): dim(dim) {
-      sub = new float[dim];
+      sub = new float[dim]; zero_out();
    } ~Vector() {
       delete[] sub;
    } void zero_out() {
@@ -20,6 +20,7 @@ struct Vector {
       return sum;
    }
 };
+
 struct VectorList {
    int num;
    Vector** vecs;
