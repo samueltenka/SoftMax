@@ -1,11 +1,8 @@
 #include "SamVectorize.h"
+#include "Parameters.h"
 #include <math.h>
 
-const int SIDE = 28;
-const int DIM = SIDE*SIDE;
-const double PI = 3.14159265358979323;
 
-const int PSIDE = 3;
 float waves[PSIDE][PSIDE][DIM];
 
 static void initialize_fourier(const int prow, const int pcol, float f[]) {
