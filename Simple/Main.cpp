@@ -8,7 +8,7 @@
 #include "Parameters.h"
 
 const double reg_param = 0.000001;
-const double dt = 0.000001;
+const double dt = 0.00001;
 const int REPS = 200;
 
 float** xs;//[LEN][DIM]
@@ -34,7 +34,8 @@ int main() {
    //
    for(int count=0; count<REPS; ++count) {
       step(random()%K, dt, reg_param, ts, ps, ws);
-      printf("hi!\n");
+      double e = error_on(ts, ps, ws, LEN);
+      printf("%d \t %f\n", count, e);
    }
 
    // CLEAN UP
